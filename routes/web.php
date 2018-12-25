@@ -11,6 +11,10 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('layout.layout');
+// });
+
+Route::get('/', 'HomeController@index');
+Route::post('file', ['as' => 'file', 'uses' => 'HomeController@simpan']);
+Route::get('data', ['as' => 'data', 'uses' => 'HomeController@getData']);
