@@ -15,6 +15,12 @@
 //     return view('layout.layout');
 // });
 
-Route::get('/', 'HomeController@index');
-Route::post('file', ['as' => 'file', 'uses' => 'HomeController@simpan']);
-Route::get('data', ['as' => 'data', 'uses' => 'HomeController@getData']);
+Route::get('/', 'HomeController@index')->name('index');
+Route::get('data', ['as' => 'data', 'uses' => 'TrackingController@getData']);
+Route::get('upload', 'UploadController@index')->name('upload');
+Route::post('file', ['as' => 'file', 'uses' => 'UploadController@simpan']);
+Route::get('tracking', 'TrackingController@index')->name('tracking');
+
+Auth::routes();
+
+Route::get('/', 'HomeController@index')->name('home');

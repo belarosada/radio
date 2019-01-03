@@ -3,7 +3,10 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>AdminLTE 2 | Dashboard</title>
+        <!-- Favicon icon -->
+        <link rel="icon" type="image/png" sizes="16x16" href="{{asset('assets/images/logo.png')}}">
+        <title>Monitoring Radio System</title>
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <!-- Bootstrap 3.3.7 -->
@@ -25,8 +28,12 @@
         <link rel="stylesheet" href="{{url('assets/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css')}}">
         <!-- Daterange picker -->
         <link rel="stylesheet" href="{{url('assets/bower_components/bootstrap-daterangepicker/daterangepicker.css')}}">
+        <!-- File Input -->
+        <link rel="stylesheet" href="{{url('assets/bower_components/fileinput/css/fileinput.css')}}">
         <!-- bootstrap wysihtml5 - text editor -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.4/leaflet.css">
+        <!-- Select2 -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
 
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -38,16 +45,16 @@
         <!-- Google Font -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
     </head>
-    <body class="hold-transition skin-blue sidebar-mini">
+    <body class="hold-transition skin-red-light sidebar-mini fixed">
         <div class="wrapper">
 
             <header class="main-header">
                 <!-- Logo -->
-                <a href="index2.html" class="logo">
+                <a href="{{ route('index') }}" class="logo">
                     <!-- mini logo for sidebar mini 50x50 pixels -->
-                    <span class="logo-mini"><b>A</b>LT</span>
+                    <span class="logo-mini"><img src="{{asset('assets/images/logo1.png')}}" /></span>
                     <!-- logo for regular state and mobile devices -->
-                    <span class="logo-lg"><b>Admin</b>LTE</span>
+                    <span class="logo-lg">BADAK LNG</span>
                 </a>
                 <!-- Header Navbar: style can be found in header.less -->
                 <nav class="navbar navbar-static-top">
@@ -69,9 +76,19 @@
                         <li class="active treeview">
                             <a href="#">
                                 <i class="fa fa-dashboard"></i> <span>Dashboard</span>
-                                <span class="pull-right-container">
+                                <!--<span class="pull-right-container">
                                     <i class="fa fa-angle-left pull-right"></i>
-                                </span>
+                                </span>-->
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('upload') }}">
+                                <i class="fa fa-cloud-upload"></i> <span>Upload File</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('tracking') }}">
+                                <i class="fa fa-location-arrow"></i> <span>Tracking Radio</span>
                             </a>
                         </li>
                     </ul>
@@ -80,38 +97,7 @@
             </aside>
 
             <div class="content-wrapper">
-
-                <section class="content-header">
-                    <h1>
-                        Dashboard
-                    </h1>
-                </section>
-
-                <section class="content">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div id="map" style="height: 550px;"></div>
-                        </div>
-                    </div>
-
-                    <form id="form_id" method="post">
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}"/>
-                        <div class="form-group">
-                            <label for="fileinput">File input</label>
-                            <input type="file" id="fileinput" name="fileinput">
-                        </div>
-                        <div class="">
-                            <button type="button" name="simpan" id="simpan">Submit</button>
-                        </div>
-                    </form>
-
-                    <div class="row">
-                        <section class="col-lg-7 connectedSortable">
-                            <section class="col-lg-5 connectedSortable"> </section>
-                        </section>
-                    </div>
-                </section>
-
+                @yield('content')
             </div>
 
             <footer class="main-footer">
@@ -153,90 +139,14 @@
         <script src="{{url('assets/dist/js/adminlte.min.js')}}"></script>
         <!-- AdminLTE for demo purposes -->
         <script src="{{url('assets/dist/js/demo.js')}}"></script>
+
+        <!-- Leaflet Maps -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.4/leaflet.js"></script>
-        <script>
-        const radius = 20;
-        var map = L.map('map').setView([0.12108564376831, 117.47071266174], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+        <!-- File Input -->
+        <script src="{{url('assets/bower_components/fileinput/js/fileinput.js')}}"></script>
+        <!-- Select2 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+        @stack('scripts')
 
-        $.get("{{url('data')}}", function( data ) {
-            data.data.forEach(function(val){
-                if (val.coordinate) {
-                    let coordinate = [parseFloat(val.coordinate.split(', ')[0]), parseFloat(val.coordinate.split(', ')[1])];
-                    let option = {};
-                    if (parseFloat(val.signal) < -100) {
-                        option = {
-                            color: '#ff0015',
-                            fillColor: '#ff0015',
-                            fillOpacity: 0.5
-                        };
-                    } else if (between(parseFloat(val.signal), -90, -100)) {
-                        option = {
-                            color: '#ff9000',
-                            fillColor: '#ff9000',
-                            fillOpacity: 0.5
-                        };
-                    } else if (between(parseFloat(val.signal), -80, -90)) {
-                        option = {
-                            color: '#fff200',
-                            fillColor: '#fff200',
-                            fillOpacity: 0.5
-                        };
-                    } else if (parseFloat(val.signal) > -80) {
-                        option = {
-                            color: '#00ff04',
-                            fillColor: '#00ff04',
-                            fillOpacity: 0.5
-                        };
-                    }
-                    new L.circle(coordinate, {radius: radius})
-                    .setStyle(option)
-                    .bindTooltip(`signal: ${val.signal} id: ${val.id_pr}`)
-                    .addTo(map);
-                }
-            });
-        });
-        function between(x, max, min) {
-            return x >= min && x <= max;
-        }
-        </script>
-        <script type="text/javascript">
-
-            $('#simpan').click(function(){
-                var uploadfile = new FormData($("#form_id")[0]);
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-
-                $.ajax({
-                    type: "POST",
-                    url: '{{url("file")}}',
-                    data: uploadfile,
-                    processData: false,
-                    contentType: false,
-                    success: function(data) {
-                        if(data.responses == 'OK'){
-                            swal({
-                                title: "Sukses",
-                                text: "Data telah disimpan",
-                                type: "success",
-                                timer: 3000,
-                                showConfirmButton: true
-                            },
-                            function(){
-                                location.reload();
-                            });
-
-                        }
-                    }
-                });
-
-            });
-
-        </script>
     </body>
 </html>
