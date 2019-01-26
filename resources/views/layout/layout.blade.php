@@ -44,6 +44,22 @@
 
         <!-- Google Font -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+
+        <style media="screen">
+        .center-navbar{
+            display: block;
+            text-align: center;
+            color: white;
+            padding: 11px;
+            /* adjust based on your layout */
+            margin-left: 180px;
+            margin-right: 200px;
+        }
+        .green{
+            background-color: #015687;
+        }
+        </style>
+
     </head>
     <body class="hold-transition skin-red-light sidebar-mini fixed">
         <div class="wrapper">
@@ -62,8 +78,45 @@
                     <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
                         <span class="sr-only">Toggle navigation</span>
                     </a>
+                    <div class="navbar-custom-menu">
+                        <ul class="nav navbar-nav">
+                            <!-- User Account: style can be found in dropdown.less -->
+                            <li class="dropdown user user-menu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                    <img src="{{asset('assets/dist/img/user.png')}}" class="user-image" alt="User Image">
+                                    <span class="hidden-xs">User</span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <!-- User image -->
+                                    <li class="user-header">
+                                        <img src="{{asset('assets/dist/img/user.png')}}" class="img-circle" alt="User Image">
 
-                    <div class="navbar-custom-menu"> </div>
+                                        <p>
+                                            User
+                                        </p>
+                                    </li>
+                                    <!-- Menu Footer-->
+                                    <li class="user-footer">
+                                        <div class="pull-left">
+                                                <a class="btn btn-default btn-flat" href="{{ route('register') }}">{{ __('Register') }}</a>
+                                        </div>
+                                        <div class="pull-right">
+                                            <a class="btn btn-default btn-flat" href="{{ route('logout') }}"
+                                               onclick="event.preventDefault();
+                                                             document.getElementById('logout-form').submit();">
+                                                {{ __('Logout') }}
+                                            </a>
+
+                                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                                @csrf
+                                            </form>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                     <div class="center-navbar" style="font-size:19px">MONITORING & TRACKING RADIO SYSTEM</div>
                 </nav>
             </header>
             <!-- Left side column. contains the logo and sidebar -->
@@ -73,8 +126,8 @@
                     <!-- sidebar menu: : style can be found in sidebar.less -->
                     <ul class="sidebar-menu" data-widget="tree">
                         <li class="header">MAIN NAVIGATION</li>
-                        <li class="active treeview">
-                            <a href="#">
+                        <li class="active">
+                            <a href="{{ route('index') }}">
                                 <i class="fa fa-dashboard"></i> <span>Dashboard</span>
                                 <!--<span class="pull-right-container">
                                     <i class="fa fa-angle-left pull-right"></i>
@@ -89,6 +142,11 @@
                         <li>
                             <a href="{{ route('tracking') }}">
                                 <i class="fa fa-location-arrow"></i> <span>Tracking Radio</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('coverage') }}">
+                                <i class="fa fa-users"></i> <span>User Density</span>
                             </a>
                         </li>
                     </ul>
@@ -146,6 +204,9 @@
         <script src="{{url('assets/bower_components/fileinput/js/fileinput.js')}}"></script>
         <!-- Select2 -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+        <!-- Heatmap Js -->
+        <script src="{{url('assets/bower_components/heatmap/heatmap.js')}}"></script>
+        <script src="{{url('assets/bower_components/heatmap/leaflet-heatmap.js')}}"></script>
         @stack('scripts')
 
     </body>

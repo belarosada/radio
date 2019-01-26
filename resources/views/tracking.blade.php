@@ -2,22 +2,40 @@
 @section('content')
     <section class="content-header">
         <h1>
-            Dashboard
+            Tracking Radio
         </h1>
     </section>
 
     <section class="content">
 
-        <div class="col-md-3">
-            <select class="form-control" name="idradio" id="idradio">
-                <option value="pilih" disabled selected>Pilih ID Radio</option>
-                @foreach ($data as $key => $value)
-                    <option value="{{ $value }}">{{ $value }}</option>
-                @endforeach
-            </select>
+        <div class="box-body">
+            <div class="row col-md-12">
+                <div class="col-md-3">
+                    <select class="form-control" name="idradio" id="idradio">
+                        <option value="pilih" disabled selected>Pilih ID Radio</option>
+                        @foreach ($data as $key => $value)
+                            <option value="{{ $value->id_radio }}">{{ $value->id_radio }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                </div>
+
+                <div class="col-md-7">
+                    <i class="fa fa-circle" style="color:#15FE02"></i>
+                    Excellent &emsp;
+                    <i class="fa fa-circle" style="color:#fff200"></i>
+                    Good &emsp;
+                    <i class="fa fa-circle" style="color:#FF9000"></i>
+                    Fair &emsp;
+                    <i class="fa fa-circle" style="color:#FF0015"></i>
+                    Poor
+                </div>
+            </div>
         </div>
 
-        <br/><br/>
+        <br/>
 
         <div class="row">
             <div class="col-lg-12">
@@ -41,11 +59,37 @@
     <script>
         const radius = 20;
         var map = L.map('map').setView([0.12108564376831, 117.47071266174], 13);
+        var circleData = new L.FeatureGroup();
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
+        $('#idradio').on('change', function(){
+            map.removeLayer(circleData);
+            circleData = undefined;
+            circleData = new L.FeatureGroup();
+            $.ajax({
+                type    : "get",
+                url     : "{{url('data')}}",
+                dataType: "json",
+                data: {
+                    'filter': true,
+                    'id_radio' : $(this).val(),
+                    '_token' : '{{ csrf_token() }}'
+                },
+                success: function(data) {
+                    initData(data);
+                }
+            });
+        });
+
         $.get("{{url('data')}}", function( data ) {
+            initData(data);
+        });
+        function between(x, max, min) {
+            return x >= min && x <= max;
+        }
+        function initData(data) {
             data.data.forEach(function(val){
                 if (val.coordinate) {
                     let coordinate = [parseFloat(val.coordinate.split(', ')[0]), parseFloat(val.coordinate.split(', ')[1])];
@@ -75,15 +119,16 @@
                             fillOpacity: 0.5
                         };
                     }
-                    new L.circle(coordinate, {radius: radius})
+                    var circle = new L.circle(coordinate, {radius: radius})
                     .setStyle(option)
-                    .bindTooltip(`signal: ${val.signal} id: ${val.id_pr}`)
-                    .addTo(map);
+                    .bindTooltip(`signal: ${val.signal} id: ${val.id_radio}`);
+                    circleData.addLayer(circle);
                 }
             });
-        });
-        function between(x, max, min) {
-            return x >= min && x <= max;
+            initLayer(circleData);
+        }
+        function initLayer(layer) {
+            return map.addLayer(layer);
         }
     </script>
 @endpush

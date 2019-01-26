@@ -20,7 +20,9 @@ Route::get('data', ['as' => 'data', 'uses' => 'TrackingController@getData']);
 Route::get('upload', 'UploadController@index')->name('upload');
 Route::post('file', ['as' => 'file', 'uses' => 'UploadController@simpan']);
 Route::get('tracking', 'TrackingController@index')->name('tracking');
+Route::get('pull', 'TrackingController@getData');
+Route::get('coverage', 'CoverageController@index')->name('coverage');
 
 Auth::routes();
 
-Route::get('/', 'HomeController@index')->name('home');
+Route::get('/home', 'HomeController@index')->name('home');

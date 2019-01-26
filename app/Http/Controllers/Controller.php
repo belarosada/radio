@@ -12,16 +12,19 @@ class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     public function getDataRadio($path) {
+        $duration = 10; // Second
+        $oldTime = null;
         $txt_file    = file_get_contents($path);
     	$rows        = explode("\r\n", $txt_file);
     	$result      = $match = [];
     	array_shift($rows);
     	foreach($rows as $key => $value) {
-    	    // cek if data contains [RxCn], U_SDS_DATA, PrId
+            $currentTime = strtotime(explode(' ', $value)[0]);
+            if ($oldTime == null) $oldTime = $currentTime;
     		if (
-    			strpos($value, '>[RxC') !== false &&
-    			strpos($value, 'U_SDS_DATA') !== false &&
-    			strpos($value, 'PrId') !== false
+    			strpos($value, '>[RxC') !== false && //signal
+    			strpos($value, 'U_SDS_DATA') !== false && //id radio
+    			strpos($value, 'PrId') !== false //location
     		){
     			$signal = explode('=', $this->getStringBetween($value, '[', ']'))[1];
     			$index = strpos($value, 'U_SDS_DATA @');
@@ -34,12 +37,36 @@ class Controller extends BaseController
                     'id_pr' => $id_pr,
                     'coordinate' => $this->bin2Cord(explode(' ', $id_radio)[1])
                 ];
-                if ($temp['coordinate'] != '0, 0') {
-                    $result[] = $temp;
+                if ($currentTime >= strtotime("$duration Second", $oldTime)) {
+                  $oldTime = $currentTime;
+                  if ($temp['coordinate'] != '0, 0') {
+                      $result[] = $temp;
+                  }
                 }
             }
     	};
         return $result;
+    }
+
+    function getDataIDRadio($array) {
+        $data = [];
+        foreach ($array as $key => $value) {
+            if (
+                strpos($value, '>[RxC') !== false &&
+                strpos($value, 'U_SDS_DATA') !== false &&
+                strpos($value, 'PrId') !== false
+            ) {
+                $index = strpos($value, 'U_SDS_DATA @');
+                $last_index = strpos($value, 'EpiRx');
+                $tmpStr = substr($value, $index, $last_index - ($index + 1));
+                $id_pr = str_replace('U_SDS_DATA @', '', $tmpStr);
+                $coordinate = $this->bin2Cord(explode(' ', explode('=', substr($value, strpos($value, 'PrId=')))[1])[1]);
+                if (!in_array($id_pr, $data) && $coordinate != '0, 0') {
+                    $data[] = $id_pr;
+                }
+            }
+        }
+        return $data;
     }
 
     function getStringBetween($str,$from,$to, $withFromAndTo = false){
